@@ -39,16 +39,10 @@ public class ItemServiceImpl implements ItemService {
         checkOwner(item, userId);
 
         if (dto.name() != null) {
-            if (dto.name().isBlank()) {
-                throw new ValidationException("Item name must not be blank");
-            }
             item.setName(dto.name());
         }
 
         if (dto.description() != null) {
-            if (dto.description().isBlank()) {
-                throw new ValidationException("Item description must not be blank");
-            }
             item.setDescription(dto.description());
         }
 

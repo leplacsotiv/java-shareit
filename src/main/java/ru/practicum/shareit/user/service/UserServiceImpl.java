@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.common.exception.ConflictException;
 import ru.practicum.shareit.common.exception.NotFoundException;
-import ru.practicum.shareit.common.exception.ValidationException;
 import ru.practicum.shareit.user.dto.CreateUserDto;
 import ru.practicum.shareit.user.dto.UpdateUserDto;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -34,17 +33,10 @@ public class UserServiceImpl implements UserService {
         User user = getUserOrThrow(userId);
 
         if (dto.name() != null) {
-            if (dto.name().isBlank()) {
-                throw new ValidationException("Name must not be blank");
-            }
             user.setName(dto.name());
         }
 
         if (dto.email() != null) {
-            if (dto.email().isBlank()) {
-                throw new ValidationException("Email must not be blank");
-            }
-
             checkEmailIsFree(dto.email(), userId);
             user.setEmail(dto.email());
         }

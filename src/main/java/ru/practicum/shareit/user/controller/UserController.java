@@ -7,6 +7,7 @@ import ru.practicum.shareit.user.dto.CreateUserDto;
 import ru.practicum.shareit.user.dto.UpdateUserDto;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.common.exception.ValidationException;
 
 import java.util.Collection;
 
@@ -24,6 +25,7 @@ public class UserController {
     @PatchMapping("/{userId}")
     public UserDto update(@PathVariable Long userId,
                           @Valid @RequestBody UpdateUserDto dto) {
+        validateUpdateDto(dto);
         return userService.update(userId, dto);
     }
 
@@ -40,5 +42,15 @@ public class UserController {
     @DeleteMapping("/{userId}")
     public void deleteById(@PathVariable Long userId) {
         userService.deleteById(userId);
+    }
+
+    private void validateUpdateDto(UpdateUserDto dto) {
+        if (dto.name() != null && dto.name().isBlank()) {
+            throw new ValidationException("Name must not be blank");
+        }
+
+        if (dto.email() != null && dto.email().isBlank()) {
+            throw new ValidationException("Email must not be blank");
+        }
     }
 }

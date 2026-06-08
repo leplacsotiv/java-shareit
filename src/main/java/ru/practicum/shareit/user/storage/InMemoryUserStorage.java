@@ -2,6 +2,7 @@ package ru.practicum.shareit.user.storage;
 
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.common.exception.NotFoundException;
 
 import java.util.*;
 
@@ -19,6 +20,10 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User update(User user) {
+        if (!users.containsKey(user.getId())) {
+            throw new NotFoundException("User with id " + user.getId() + " not found");
+        }
+
         users.put(user.getId(), user);
         return user;
     }
@@ -35,6 +40,10 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public void deleteById(Long id) {
+        if (!users.containsKey(id)) {
+            throw new NotFoundException("User with id " + id + " not found");
+        }
+
         users.remove(id);
     }
 

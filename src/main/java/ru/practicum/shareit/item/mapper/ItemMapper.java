@@ -5,15 +5,15 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
+import java.util.Objects;
+
 public final class ItemMapper {
 
     private ItemMapper() {
     }
 
     public static ItemDto toDto(Item item) {
-        if (item == null) {
-            return null;
-        }
+        Objects.requireNonNull(item, "item must not be null");
 
         return new ItemDto(
                 item.getId(),
@@ -24,9 +24,8 @@ public final class ItemMapper {
     }
 
     public static Item toModel(CreateItemDto dto, User owner) {
-        if (dto == null) {
-            return null;
-        }
+        Objects.requireNonNull(dto, "dto must not be null");
+        Objects.requireNonNull(owner, "owner must not be null");
 
         return Item.builder()
                 .name(dto.name())

@@ -7,6 +7,7 @@ import ru.practicum.shareit.item.dto.CreateItemDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.UpdateItemDto;
 import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.common.exception.ValidationException;
 
 import java.util.Collection;
 
@@ -28,6 +29,7 @@ public class ItemController {
     public ItemDto update(@RequestHeader(USER_ID_HEADER) Long userId,
                           @PathVariable Long itemId,
                           @Valid @RequestBody UpdateItemDto dto) {
+        validateUpdateDto(dto);
         return itemService.update(userId, itemId, dto);
     }
 
@@ -46,5 +48,15 @@ public class ItemController {
     public Collection<ItemDto> search(@RequestHeader(USER_ID_HEADER) Long userId,
                                       @RequestParam String text) {
         return itemService.search(userId, text);
+    }
+
+    private void validateUpdateDto(UpdateItemDto dto) {
+        if (dto.name() != null && dto.name().isBlank()) {
+            throw new ValidationException("Item name must not be blank");
+        }
+
+        if (dto.description() != null && dto.description().isBlank()) {
+            throw new ValidationException("Item description must not be blank");
+        }
     }
 }
