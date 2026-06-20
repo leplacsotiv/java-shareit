@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.dto;
 
-public record ItemDto(
-        Long id,
+public record UpdateItemDto(
         String name,
         String description,
         Boolean available
