@@ -24,6 +24,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
@@ -36,11 +37,14 @@ public class BookingServiceImpl implements BookingService {
         Item item = getItemOrThrow(dto.itemId());
 
         if (item.getOwner().getId().equals(userId)) {
-            throw new NotFoundException("Owner cannot book own item");
+            throw new NotFoundException(
+                    "User with id " + userId + " is owner of item with id " + item.getId()
+                            + " and cannot book it"
+            );
         }
 
         if (!Boolean.TRUE.equals(item.getAvailable())) {
-            throw new ValidationException("Item is not available for booking");
+            throw new ValidationException("Item with id " + item.getId() + " is not available for booking");
         }
 
         Booking booking = BookingMapper.toModel(dto, item, booker);
@@ -71,7 +75,6 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public BookingDto getById(Long userId, Long bookingId) {
         getUserOrThrow(userId);
 
@@ -88,7 +91,6 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Collection<BookingDto> getByBooker(Long userId, BookingState state) {
         getUserOrThrow(userId);
 
@@ -99,7 +101,6 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Collection<BookingDto> getByOwner(Long userId, BookingState state) {
         getUserOrThrow(userId);
 

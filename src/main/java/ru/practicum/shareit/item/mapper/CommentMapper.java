@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.mapper;
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.item.dto.AddCommentDto;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.model.Comment;
@@ -9,12 +10,10 @@ import ru.practicum.shareit.user.model.User;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public final class CommentMapper {
+@UtilityClass
+public class CommentMapper {
 
-    private CommentMapper() {
-    }
-
-    public static CommentDto toDto(Comment comment) {
+    public CommentDto toDto(Comment comment) {
         Objects.requireNonNull(comment, "comment must not be null");
 
         return new CommentDto(
@@ -25,7 +24,7 @@ public final class CommentMapper {
         );
     }
 
-    public static Comment toModel(AddCommentDto dto, Item item, User author) {
+    public Comment toModel(AddCommentDto dto, Item item, User author) {
         Objects.requireNonNull(dto, "dto must not be null");
         Objects.requireNonNull(item, "item must not be null");
         Objects.requireNonNull(author, "author must not be null");

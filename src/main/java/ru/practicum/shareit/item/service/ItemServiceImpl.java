@@ -34,6 +34,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
@@ -76,7 +77,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    @Transactional
     public ItemDto getById(Long userId, Long itemId) {
         getUserOrThrow(userId);
 
@@ -100,7 +100,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    @Transactional
     public Collection<ItemDto> getByOwnerId(Long userId) {
         getUserOrThrow(userId);
 
@@ -124,7 +123,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    @Transactional
     public Collection<ItemDto> search(Long userId, String text) {
         getUserOrThrow(userId);
 

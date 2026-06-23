@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking.mapper;
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingShortDto;
 import ru.practicum.shareit.booking.dto.CreateBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -8,16 +10,13 @@ import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.booking.dto.BookingShortDto;
 
 import java.util.Objects;
 
-public final class BookingMapper {
+@UtilityClass
+public class BookingMapper {
 
-    private BookingMapper() {
-    }
-
-    public static BookingDto toDto(Booking booking) {
+    public BookingDto toDto(Booking booking) {
         Objects.requireNonNull(booking, "booking must not be null");
 
         return new BookingDto(
@@ -30,7 +29,16 @@ public final class BookingMapper {
         );
     }
 
-    public static Booking toModel(CreateBookingDto dto, Item item, User booker) {
+    public BookingShortDto toShortDto(Booking booking) {
+        Objects.requireNonNull(booking, "booking must not be null");
+
+        return new BookingShortDto(
+                booking.getId(),
+                booking.getBooker().getId()
+        );
+    }
+
+    public Booking toModel(CreateBookingDto dto, Item item, User booker) {
         Objects.requireNonNull(dto, "dto must not be null");
         Objects.requireNonNull(item, "item must not be null");
         Objects.requireNonNull(booker, "booker must not be null");
@@ -42,14 +50,5 @@ public final class BookingMapper {
                 .booker(booker)
                 .status(BookingStatus.WAITING)
                 .build();
-    }
-
-    public static BookingShortDto toShortDto(Booking booking) {
-        Objects.requireNonNull(booking, "booking must not be null");
-
-        return new BookingShortDto(
-                booking.getId(),
-                booking.getBooker().getId()
-        );
     }
 }

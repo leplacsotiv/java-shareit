@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.mapper;
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.booking.dto.BookingShortDto;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CreateItemDto;
@@ -10,23 +11,21 @@ import ru.practicum.shareit.user.model.User;
 import java.util.List;
 import java.util.Objects;
 
-public final class ItemMapper {
+@UtilityClass
+public class ItemMapper {
 
-    private ItemMapper() {
-    }
-
-    public static ItemDto toDto(Item item) {
+    public ItemDto toDto(Item item) {
         return toDto(item, null, null, List.of());
     }
 
-    public static ItemDto toDto(Item item, BookingShortDto lastBooking, BookingShortDto nextBooking) {
+    public ItemDto toDto(Item item, BookingShortDto lastBooking, BookingShortDto nextBooking) {
         return toDto(item, lastBooking, nextBooking, List.of());
     }
 
-    public static ItemDto toDto(Item item,
-                                BookingShortDto lastBooking,
-                                BookingShortDto nextBooking,
-                                List<CommentDto> comments) {
+    public ItemDto toDto(Item item,
+                         BookingShortDto lastBooking,
+                         BookingShortDto nextBooking,
+                         List<CommentDto> comments) {
         Objects.requireNonNull(item, "item must not be null");
         Objects.requireNonNull(comments, "comments must not be null");
 
@@ -41,7 +40,7 @@ public final class ItemMapper {
         );
     }
 
-    public static Item toModel(CreateItemDto dto, User owner) {
+    public Item toModel(CreateItemDto dto, User owner) {
         Objects.requireNonNull(dto, "dto must not be null");
         Objects.requireNonNull(owner, "owner must not be null");
 
