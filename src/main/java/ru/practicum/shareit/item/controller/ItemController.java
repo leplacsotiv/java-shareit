@@ -8,6 +8,8 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.UpdateItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.common.exception.ValidationException;
+import ru.practicum.shareit.item.dto.AddCommentDto;
+import ru.practicum.shareit.item.dto.CommentDto;
 
 import java.util.Collection;
 
@@ -48,6 +50,13 @@ public class ItemController {
     public Collection<ItemDto> search(@RequestHeader(USER_ID_HEADER) Long userId,
                                       @RequestParam String text) {
         return itemService.search(userId, text);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addComment(@RequestHeader(USER_ID_HEADER) Long userId,
+                                 @PathVariable Long itemId,
+                                 @Valid @RequestBody AddCommentDto dto) {
+        return itemService.addComment(userId, itemId, dto);
     }
 
     private void validateUpdateDto(UpdateItemDto dto) {
