@@ -1,36 +1,40 @@
 package ru.practicum.shareit.item.service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.common.exception.NotFoundException;
-import ru.practicum.shareit.item.dto.CreateItemDto;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.UpdateItemDto;
-import ru.practicum.shareit.item.mapper.ItemMapper;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingShortDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.common.exception.NotFoundException;
 import ru.practicum.shareit.common.exception.ValidationException;
+import ru.practicum.shareit.common.pagination.OffsetPageRequest;
 import ru.practicum.shareit.item.dto.AddCommentDto;
 import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CreateItemDto;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.UpdateItemDto;
 import ru.practicum.shareit.item.mapper.CommentMapper;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
-
-import java.util.ArrayList;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Collection;
-import java.util.List;
-
+import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -40,13 +44,15 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Override
     @Transactional
     public ItemDto create(Long userId, CreateItemDto dto) {
         User owner = getUserOrThrow(userId);
+        ItemRequest request = getItemRequestOrNull(dto.requestId());
 
-        Item item = ItemMapper.toModel(dto, owner);
+        Item item = ItemMapper.toModel(dto, owner, request);
         Item savedItem = itemRepository.save(item);
 
         return ItemMapper.toDto(savedItem);
@@ -100,10 +106,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Collection<ItemDto> getByOwnerId(Long userId) {
+    public Collection<ItemDto> getByOwnerId(Long userId, Integer from, Integer size) {
         getUserOrThrow(userId);
 
-        List<Item> items = itemRepository.findByOwnerId(userId);
+        Pageable pageRequest = new OffsetPageRequest(from, size, Sort.by(Sort.Direction.ASC, "id"));
+        List<Item> items = itemRepository.findByOwnerId(userId, pageRequest);
         List<Long> itemIds = items.stream()
                 .map(Item::getId)
                 .toList();
@@ -123,14 +130,16 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Collection<ItemDto> search(Long userId, String text) {
+    public Collection<ItemDto> search(Long userId, String text, Integer from, Integer size) {
         getUserOrThrow(userId);
 
         if (text == null || text.isBlank()) {
             return List.of();
         }
 
-        return itemRepository.searchAvailableByText(text)
+        Pageable pageRequest = new OffsetPageRequest(from, size);
+
+        return itemRepository.searchAvailableByText(text, pageRequest)
                 .stream()
                 .map(ItemMapper::toDto)
                 .toList();
@@ -146,6 +155,15 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new NotFoundException("Item with id " + itemId + " not found"));
     }
 
+    private ItemRequest getItemRequestOrNull(Long requestId) {
+        if (requestId == null) {
+            return null;
+        }
+
+        return itemRequestRepository.findById(requestId)
+                .orElseThrow(() -> new NotFoundException("Item request with id " + requestId + " not found"));
+    }
+
     private void checkOwner(Item item, Long userId) {
         if (!item.getOwner().getId().equals(userId)) {
             throw new NotFoundException("Only owner can update item");
@@ -158,22 +176,27 @@ public class ItemServiceImpl implements ItemService {
         User author = getUserOrThrow(userId);
         Item item = getItemOrThrow(itemId);
 
-        boolean userBookedItem = bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndBefore(
+        boolean hasCompletedBooking = bookingRepository.existsByItemIdAndBookerIdAndEndBefore(
                 itemId,
                 userId,
-                BookingStatus.APPROVED,
                 LocalDateTime.now()
         );
 
-        if (!userBookedItem) {
-            throw new ValidationException("User must have completed booking to comment item");
+        if (!hasCompletedBooking) {
+            throw new ValidationException("User with id " + userId
+                    + " cannot comment item with id " + itemId);
         }
 
-        Comment comment = CommentMapper.toModel(dto, item, author);
-        Comment savedComment = commentRepository.save(comment);
+        Comment comment = Comment.builder()
+                .text(dto.text())
+                .item(item)
+                .author(author)
+                .created(LocalDateTime.now())
+                .build();
 
-        return CommentMapper.toDto(savedComment);
+        return CommentMapper.toDto(commentRepository.save(comment));
     }
+
 
     private Map<Long, BookingShortDto> findLastBookingsByItemIds(List<Long> itemIds) {
         if (itemIds.isEmpty()) {

@@ -50,14 +50,18 @@ public class BookingController {
 
     @GetMapping
     public Collection<BookingDto> getByBooker(@RequestHeader(USER_ID_HEADER) Long userId,
-                                              @RequestParam(defaultValue = "ALL") BookingState state) {
-        return bookingService.getByBooker(userId, state);
+                                              @RequestParam(defaultValue = "ALL") BookingState state,
+                                              @RequestParam(defaultValue = "0") Integer from,
+                                              @RequestParam(defaultValue = "10") Integer size) {
+        return bookingService.getByBooker(userId, state, from, size);
     }
 
     @GetMapping("/owner")
     public Collection<BookingDto> getByOwner(@RequestHeader(USER_ID_HEADER) Long userId,
-                                             @RequestParam(defaultValue = "ALL") BookingState state) {
-        return bookingService.getByOwner(userId, state);
+                                             @RequestParam(defaultValue = "ALL") BookingState state,
+                                             @RequestParam(defaultValue = "0") Integer from,
+                                             @RequestParam(defaultValue = "10") Integer size) {
+        return bookingService.getByOwner(userId, state, from, size);
     }
 
     private void validateCreateDto(CreateBookingDto dto) {

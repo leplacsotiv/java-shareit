@@ -42,14 +42,18 @@ public class ItemController {
     }
 
     @GetMapping
-    public Collection<ItemDto> getByOwnerId(@RequestHeader(USER_ID_HEADER) Long userId) {
-        return itemService.getByOwnerId(userId);
+    public Collection<ItemDto> getByOwnerId(@RequestHeader(USER_ID_HEADER) Long userId,
+                                             @RequestParam(defaultValue = "0") Integer from,
+                                             @RequestParam(defaultValue = "10") Integer size) {
+        return itemService.getByOwnerId(userId, from, size);
     }
 
     @GetMapping("/search")
     public Collection<ItemDto> search(@RequestHeader(USER_ID_HEADER) Long userId,
-                                      @RequestParam String text) {
-        return itemService.search(userId, text);
+                                      @RequestParam String text,
+                                      @RequestParam(defaultValue = "0") Integer from,
+                                      @RequestParam(defaultValue = "10") Integer size) {
+        return itemService.search(userId, text, from, size);
     }
 
     @PostMapping("/{itemId}/comment")

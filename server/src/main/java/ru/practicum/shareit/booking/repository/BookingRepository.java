@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.repository;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import ru.practicum.shareit.booking.model.Booking;
@@ -16,42 +17,44 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findAll();
 
     @EntityGraph(attributePaths = {"item", "item.owner", "booker"})
-    List<Booking> findByBookerIdOrderByStartDesc(Long bookerId);
+    List<Booking> findByBookerIdOrderByStartDesc(Long bookerId, Pageable pageable);
 
     @EntityGraph(attributePaths = {"item", "item.owner", "booker"})
     List<Booking> findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
             Long bookerId,
             LocalDateTime start,
-            LocalDateTime end
+            LocalDateTime end,
+            Pageable pageable
     );
 
     @EntityGraph(attributePaths = {"item", "item.owner", "booker"})
-    List<Booking> findByBookerIdAndEndBeforeOrderByStartDesc(Long bookerId, LocalDateTime end);
+    List<Booking> findByBookerIdAndEndBeforeOrderByStartDesc(Long bookerId, LocalDateTime end, Pageable pageable);
 
     @EntityGraph(attributePaths = {"item", "item.owner", "booker"})
-    List<Booking> findByBookerIdAndStartAfterOrderByStartDesc(Long bookerId, LocalDateTime start);
+    List<Booking> findByBookerIdAndStartAfterOrderByStartDesc(Long bookerId, LocalDateTime start, Pageable pageable);
 
     @EntityGraph(attributePaths = {"item", "item.owner", "booker"})
-    List<Booking> findByBookerIdAndStatusOrderByStartDesc(Long bookerId, BookingStatus status);
+    List<Booking> findByBookerIdAndStatusOrderByStartDesc(Long bookerId, BookingStatus status, Pageable pageable);
 
     @EntityGraph(attributePaths = {"item", "item.owner", "booker"})
-    List<Booking> findByItemOwnerIdOrderByStartDesc(Long ownerId);
+    List<Booking> findByItemOwnerIdOrderByStartDesc(Long ownerId, Pageable pageable);
 
     @EntityGraph(attributePaths = {"item", "item.owner", "booker"})
     List<Booking> findByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(
             Long ownerId,
             LocalDateTime start,
-            LocalDateTime end
+            LocalDateTime end,
+            Pageable pageable
     );
 
     @EntityGraph(attributePaths = {"item", "item.owner", "booker"})
-    List<Booking> findByItemOwnerIdAndEndBeforeOrderByStartDesc(Long ownerId, LocalDateTime end);
+    List<Booking> findByItemOwnerIdAndEndBeforeOrderByStartDesc(Long ownerId, LocalDateTime end, Pageable pageable);
 
     @EntityGraph(attributePaths = {"item", "item.owner", "booker"})
-    List<Booking> findByItemOwnerIdAndStartAfterOrderByStartDesc(Long ownerId, LocalDateTime start);
+    List<Booking> findByItemOwnerIdAndStartAfterOrderByStartDesc(Long ownerId, LocalDateTime start, Pageable pageable);
 
     @EntityGraph(attributePaths = {"item", "item.owner", "booker"})
-    List<Booking> findByItemOwnerIdAndStatusOrderByStartDesc(Long ownerId, BookingStatus status);
+    List<Booking> findByItemOwnerIdAndStatusOrderByStartDesc(Long ownerId, BookingStatus status, Pageable pageable);
 
     @EntityGraph(attributePaths = {"item", "booker"})
     List<Booking> findByItemIdInAndStatusAndStartBeforeOrderByStartDesc(
@@ -67,12 +70,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             LocalDateTime start
     );
 
-    boolean existsByItemIdAndBookerIdAndStatusAndEndBefore(
+    boolean existsByItemIdAndBookerIdAndEndBefore(
             Long itemId,
             Long bookerId,
-            BookingStatus status,
             LocalDateTime end
     );
-
-
 }

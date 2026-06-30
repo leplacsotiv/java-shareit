@@ -9,6 +9,7 @@ public record ItemDto(
         String name,
         String description,
         Boolean available,
+        Long requestId,
         BookingShortDto lastBooking,
         BookingShortDto nextBooking,
         List<CommentDto> comments
